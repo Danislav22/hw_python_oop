@@ -1,4 +1,3 @@
-from typing import ClassVar
 from dataclasses import dataclass, asdict
 
 
@@ -26,9 +25,9 @@ class InfoMessage:
 @dataclass
 class Training:
     """Базовый класс тренировки."""
-    M_IN_KM: ClassVar = 1000
-    LEN_STEP: ClassVar = 0.65
-    MIN_IN_HOUR: ClassVar = 60
+    M_IN_KM = 1000
+    LEN_STEP = 0.65
+    MIN_IN_HOUR = 60
 
     action: int
     duration: float
@@ -44,11 +43,6 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return (
-            (18 * self.get_mean_speed() + 1.79)
-            * self.weight / self.M_IN_KM * self.duration
-            * self.MIN_IN_HOUR
-        )
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -64,8 +58,8 @@ class Training:
 @dataclass
 class Running(Training):
     """Тренировка: бег."""
-    CALORIES_MEAN_SPEED_MULTIPLIER: ClassVar = 18
-    CALORIES_MEAN_SPEED_SHIFT: ClassVar = 1.79
+    CALORIES_MEAN_SPEED_MULTIPLIER = 18
+    CALORIES_MEAN_SPEED_SHIFT = 1.79
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -79,28 +73,35 @@ class Running(Training):
 @dataclass
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    WEIGHT_MULTIPLIER: ClassVar = 0.035
-    SPEED_HEIGHT_MULTIPLIER: ClassVar = 0.029
-    K_H_TO_M_S: ClassVar = round(1000 / 3600, 3)
-    CM_IN_M: ClassVar = 100
+    WEIGHT_MULTIPLIER = 0.035
+    SPEED_HEIGHT_MULTIPLIER = 0.029
+    K_H_TO_M_S = round(Training.M_IN_KM / Training.MIN_IN_HOUR**2, 3)
+    CM_IN_M = 100
 
     height: float
 
     def get_spent_calories(self) -> float:
         return (
-            (self.WEIGHT_MULTIPLIER * self.weight + ((self.get_mean_speed()
-             * self.K_H_TO_M_S)**2 / (self.height / self.CM_IN_M))
-             * self.SPEED_HEIGHT_MULTIPLIER * self.weight)
-            * (self.duration * self.MIN_IN_HOUR)
+            (
+                self.WEIGHT_MULTIPLIER * self.weight
+                + (
+                    (self.get_mean_speed() * self.K_H_TO_M_S)**2
+                    / (self.height / self.CM_IN_M)
+                )
+                * self.SPEED_HEIGHT_MULTIPLIER
+                * self.weight
+            )
+            * self.duration
+            * self.MIN_IN_HOUR
         )
 
 
 @dataclass
 class Swimming(Training):
     """Тренировка: плавание."""
-    MEAN_SPEED_MULTIPLIER: ClassVar = 2
-    CALORIES_MEAN_SPEED_SHIFT: ClassVar = 1.1
-    LEN_STEP: ClassVar = 1.38
+    MEAN_SPEED_MULTIPLIER = 2
+    CALORIES_MEAN_SPEED_SHIFT = 1.1
+    LEN_STEP = 1.38
 
     length_pool: float
     count_pool: int
@@ -130,6 +131,15 @@ CLASSES = {
 
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
+    # Сравниваем количество необходимых аргументов для
+    # создания объекта с длинной data
+    len_args = len(CLASSES[workout_type].__dict__['__match_args__'])
+    if (len_args < len(data) or len_args > len(data)):
+        raise TypeError(
+            'Количество элементов, необходимые для '
+            'создания объекта класса, несоответствуют '
+            'количеству передаваемых параметров'
+        )
     return CLASSES[workout_type](*data)
 
 
