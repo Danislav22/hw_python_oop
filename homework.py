@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 
 
 @dataclass
@@ -74,7 +74,7 @@ class Running(Training):
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
     WEIGHT_MULTIPLIER = 0.035
-    SPEED_HEIGHT_MULTIPLIER = 0.029
+    SPEED_MULTIPLIER = 0.029
     K_H_TO_M_S = round(Training.M_IN_KM / Training.MIN_IN_HOUR**2, 3)
     CM_IN_M = 100
 
@@ -88,7 +88,7 @@ class SportsWalking(Training):
                     (self.get_mean_speed() * self.K_H_TO_M_S)**2
                     / (self.height / self.CM_IN_M)
                 )
-                * self.SPEED_HEIGHT_MULTIPLIER
+                * self.SPEED_MULTIPLIER
                 * self.weight
             )
             * self.duration
@@ -133,12 +133,18 @@ def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
     # Сравниваем количество необходимых аргументов для
     # создания объекта с длинной data
-    len_args = len(CLASSES[workout_type].__dataclass_fields__)
-    if (len_args < len(data) or len_args > len(data)):
+    if workout_type not in CLASSES:
+        raise TypeError(f'{workout_type} не соответствует '
+                        'ни одному доступному типу из:'
+                        + {' '.join(CLASSES.keys())})
+    len_args = len(fields(CLASSES[workout_type]))
+    if len_args != len(data):
         raise TypeError(
             'Количество элементов, необходимые для '
             'создания объекта класса, несоответствуют '
-            'количеству передаваемых параметров'
+            'количеству передаваемых параметров '
+            f'переданное количество параметров - {len(data)} '
+            f'необходимо - {len_args}'
         )
     return CLASSES[workout_type](*data)
 
