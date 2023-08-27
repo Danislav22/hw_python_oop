@@ -128,23 +128,38 @@ CLASSES = {
     'WLK': SportsWalking
 }
 
+ERROR_TYPE_MESSAGE = (
+    '{workout_type} не соответствует '
+    'ни одному доступному типу из: {classes_type}'
+)
+
+ERROR_WRONG_LEN_MESSAGE = (
+    'Количество элементов, необходимые для '
+    'создания объекта класса, несоответствуют '
+    'количеству передаваемых параметров '
+    'переданное количество параметров - {given_parameters} '
+    'необходимо - {needed_parameters}'
+)
+
 
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
     # Сравниваем количество необходимых аргументов для
     # создания объекта с длинной data
     if workout_type not in CLASSES:
-        raise TypeError(f'{workout_type} не соответствует '
-                        'ни одному доступному типу из:'
-                        + {' '.join(CLASSES.keys())})
+        raise TypeError(
+            ERROR_TYPE_MESSAGE.format(
+                workout_type=workout_type,
+                classes_type=' '.join(CLASSES.keys())
+            )
+        )
     len_args = len(fields(CLASSES[workout_type]))
     if len_args != len(data):
         raise TypeError(
-            'Количество элементов, необходимые для '
-            'создания объекта класса, несоответствуют '
-            'количеству передаваемых параметров '
-            f'переданное количество параметров - {len(data)} '
-            f'необходимо - {len_args}'
+            ERROR_WRONG_LEN_MESSAGE.format(
+                given_parameters=len(data),
+                needed_parameters=len_args
+            )
         )
     return CLASSES[workout_type](*data)
 
