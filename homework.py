@@ -130,15 +130,6 @@ CLASSES = {
 
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    # Сравниваем количество необходимых аргументов для
-    # создания объекта с длинной data
-    len_args = len(CLASSES[workout_type].__dict__['__match_args__'])
-    if (len_args < len(data) or len_args > len(data)):
-        raise TypeError(
-            'Количество элементов, необходимые для '
-            'создания объекта класса, несоответствуют '
-            'количеству передаваемых параметров'
-        )
     return CLASSES[workout_type](*data)
 
 
