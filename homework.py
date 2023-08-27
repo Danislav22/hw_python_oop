@@ -17,7 +17,7 @@ class InfoMessage:
         'Дистанция: {distance:.3f} км; '
         'Ср. скорость: {speed:.3f} км/ч; '
         'Потрачено ккал: {calories:.3f}.'
-        )
+    )
 
     def get_message(self) -> str:
         return self.MESSAGE.format(**asdict(self))
@@ -48,7 +48,7 @@ class Training:
             (18 * self.get_mean_speed() + 1.79)
             * self.weight / self.M_IN_KM * self.duration
             * self.MIN_IN_HOUR
-            )
+        )
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -58,7 +58,7 @@ class Training:
             self.get_distance(),
             self.get_mean_speed(),
             self.get_spent_calories()
-            )
+        )
 
 
 @dataclass
@@ -73,7 +73,7 @@ class Running(Training):
             (self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
              + self.CALORIES_MEAN_SPEED_SHIFT) * self.weight / self.M_IN_KM
             * self.duration * self.MIN_IN_HOUR
-            )
+        )
 
 
 @dataclass
@@ -92,7 +92,7 @@ class SportsWalking(Training):
              * self.K_H_TO_M_S)**2 / (self.height / self.CM_IN_M))
              * self.SPEED_HEIGHT_MULTIPLIER * self.weight)
             * (self.duration * self.MIN_IN_HOUR)
-            )
+        )
 
 
 @dataclass
@@ -111,34 +111,34 @@ class Swimming(Training):
             * self.count_pool
             / self.M_IN_KM
             / self.duration
-            )
+        )
 
     def get_spent_calories(self) -> float:
         return (
             (self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
             * self.MEAN_SPEED_MULTIPLIER
             * self.weight * self.duration
-            )
+        )
 
 
 CLASSES = {
     'SWM': Swimming,
     'RUN': Running,
     'WLK': SportsWalking
-    }
+}
 
 
 def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
     # Сравниваем количество необходимых аргументов для
     # создания объекта с длинной data
-    if (len(CLASSES[workout_type].__match_args__) < len(data)
-        or len(CLASSES[workout_type].__match_args__) > len(data)):
+    len_args = len(CLASSES[workout_type].__match_args__)
+    if (len_args < len(data) or len_args > len(data)):
         raise TypeError(
             'Количество элементов, необходимые для '
             'создания объекта класса, несоответствуют '
             'количеству передаваемых параметров'
-            )
+        )
     return CLASSES[workout_type](*data)
 
 
